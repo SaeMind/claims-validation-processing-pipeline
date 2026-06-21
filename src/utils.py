@@ -19,7 +19,8 @@ def decode_pubsub_message(cloud_event_data: dict[str, Any]) -> dict[str, Any]:
     """
     raw = cloud_event_data["message"]["data"]
     decoded = base64.b64decode(raw).decode("utf-8")
-    return json.loads(decoded)
+    parsed: dict[str, Any] = json.loads(decoded)
+    return parsed
 
 
 def timestamped_output_path(output_dir: Path, prefix: str, suffix: str = ".json") -> Path:

@@ -2,6 +2,7 @@
 
 import logging
 from datetime import date
+from typing import Any
 
 from src.config import SETTINGS, VALIDATION_RULES, Settings
 from src.metrics import record_validation, timer, traced_span
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ClaimsValidator:
     """Validate claims against structural, coding, medical necessity, and financial rules."""
 
-    def __init__(self, settings: Settings = SETTINGS, rules: dict = VALIDATION_RULES) -> None:
+    def __init__(self, settings: Settings = SETTINGS, rules: dict[str, Any] = VALIDATION_RULES) -> None:
         """
         Initialize the claims validator.
 

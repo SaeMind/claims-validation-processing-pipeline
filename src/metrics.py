@@ -1,6 +1,6 @@
 """OpenTelemetry metrics and tracing utilities."""
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from time import perf_counter
 
@@ -50,7 +50,7 @@ def traced_span(name: str) -> Iterator[None]:
 
 
 @contextmanager
-def timer() -> Iterator[callable]:
+def timer() -> Iterator[Callable[[], float]]:
     """
     Measure elapsed time in milliseconds.
 

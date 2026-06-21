@@ -31,7 +31,7 @@ _sql_engine: Engine | None = None
 
 
 def lookup_member_risk_score(
-    member_id: str, settings: Settings, client: object | None = None
+    member_id: str, settings: Settings, client: Any | None = None
 ) -> float:
     """
     Look up a member risk score from BigQuery.
@@ -119,7 +119,7 @@ def lookup_provider_specialty(provider_id: str, settings: Settings) -> str:
 
 
 def validate_codes_against_references(
-    codes: Iterable[str], settings: Settings, client: object | None = None
+    codes: Iterable[str], settings: Settings, client: Any | None = None
 ) -> tuple[list[str], list[str]]:
     """
     Cross-check claim procedure/diagnosis codes against BigQuery reference tables.

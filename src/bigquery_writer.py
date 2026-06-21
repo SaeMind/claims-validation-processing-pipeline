@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class ClaimsBigQueryWriter:
     """Write validated and enriched claim records to BigQuery for analytics and audit."""
 
-    def __init__(self, settings: Settings = SETTINGS, client: object | None = None) -> None:
+    def __init__(self, settings: Settings = SETTINGS, client: Any | None = None) -> None:
         """Initialize the BigQuery writer."""
         self.settings = settings
         if client is not None:
