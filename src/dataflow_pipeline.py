@@ -9,9 +9,9 @@ per member in 30-second fixed windows and flags simple volume/spend anomalies.
 from __future__ import annotations
 
 import argparse
+import json
 from collections.abc import Iterable
 from datetime import datetime, timezone
-import json
 from typing import Any
 
 import apache_beam as beam

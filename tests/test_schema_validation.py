@@ -1,7 +1,7 @@
 from datetime import date
 
-from pydantic import ValidationError
 import pytest
+from pydantic import ValidationError
 
 from src.schemas import ClaimRecord
 

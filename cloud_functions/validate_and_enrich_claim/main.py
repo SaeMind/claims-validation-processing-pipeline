@@ -18,9 +18,9 @@ Flow:
         -> BigQuery (validated_claims): one audit row per claim, valid or invalid
 """
 
-from datetime import datetime, timezone
 import json
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 import functions_framework
