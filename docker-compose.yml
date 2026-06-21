@@ -1,0 +1,62 @@
+services:
+  pubsub-emulator:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:482.0.0-emulators
+    command: >
+      gcloud beta emulators pubsub start
+      --project=local-healthcare-project
+      --host-port=0.0.0.0:8085
+    ports:
+      - "8085:8085"
+    environment:
+      - CLOUDSDK_CORE_PROJECT=local-healthcare-project
+
+  postgres:
+    image: postgres:16.3
+    environment:
+      POSTGRES_DB: claims_ref
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  function:
+    image: python:3.11-slim
+    working_dir: /app
+    command: >
+      bash -c "pip install -r requirements.txt &&
+      functions-framework --target=validate_and_enrich_claim --source=cloud_functions/validate_and_enrich_claim/main.py --port=8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      - GCP_PROJECT_ID=local-healthcare-project
+      - LOCAL_MODE=true
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8085
+      - RAW_CLAIMS_TOPIC=incoming-claims
+      - VALID_CLAIMS_TOPIC=valid-claims
+      - INVALID_CLAIMS_TOPIC=invalid-claims
+      - ALERTS_TOPIC=claims-alerts
+      - BIGQUERY_DATASET=claims_analytics
+      - CLOUDSQL_DATABASE=claims_ref
+      - CLOUDSQL_USER=postgres
+      - CLOUDSQL_PASSWORD=postgres
+      - ENABLE_BIGQUERY=false
+    depends_on:
+      - pubsub-emulator
+      - postgres
+
+  validator-tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    environment:
+      ENABLE_BIGQUERY: "false"
+      ENABLE_PUBSUB_PUBLISH: "false"
+      PYTHONPATH: /app
+    command: pytest
+
+volumes:
+  postgres-data:

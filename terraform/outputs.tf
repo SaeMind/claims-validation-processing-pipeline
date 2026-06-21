@@ -1,0 +1,10 @@
+output "incoming_claims_topic" { value = google_pubsub_topic.incoming_claims.name }
+output "valid_claims_topic" { value = google_pubsub_topic.valid_claims.name }
+output "invalid_claims_topic" { value = google_pubsub_topic.invalid_claims.name }
+output "alerts_topic" { value = google_pubsub_topic.alerts.name }
+output "validated_claims_table" { value = google_bigquery_table.validated_claims.id }
+output "member_claim_aggregates_table" { value = google_bigquery_table.member_claim_aggregates.id }
+output "claims_validator_service_account_email" { value = google_service_account.claims_validator.email }
+output "dataflow_worker_service_account_email" { value = google_service_account.dataflow_worker.email }
+output "function_source_bucket" { value = google_storage_bucket.function_source.name }
+output "dataflow_staging_bucket" { value = google_storage_bucket.dataflow_staging.name }

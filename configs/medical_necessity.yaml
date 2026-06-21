@@ -1,0 +1,19 @@
+27447:
+  description: Total knee arthroplasty
+  allowed_diagnosis_prefixes:
+    - M16
+    - M17
+    - M19
+45398:
+  description: Colonoscopy with biopsy
+  allowed_diagnosis_prefixes:
+    - K62
+    - K63
+    - Z12
+93000:
+  description: Electrocardiogram complete
+  allowed_diagnosis_prefixes:
+    - I
+    - R07
+    - R00
+    - Z13
