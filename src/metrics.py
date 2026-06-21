@@ -1,8 +1,9 @@
 """OpenTelemetry metrics and tracing utilities."""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from time import perf_counter
-from typing import Iterator
+
 from opentelemetry import metrics, trace
 
 _meter = metrics.get_meter("serverless_claims_validation")

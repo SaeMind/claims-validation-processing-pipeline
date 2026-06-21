@@ -18,7 +18,7 @@ class JsonFormatter(logging.Formatter):
             "message": record.getMessage(),
         }
         if hasattr(record, "context"):
-            payload["context"] = getattr(record, "context")
+            payload["context"] = record.context
         return json.dumps(payload, default=str)
 
 

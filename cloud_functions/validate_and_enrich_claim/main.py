@@ -18,9 +18,9 @@ Flow:
         -> BigQuery (validated_claims): one audit row per claim, valid or invalid
 """
 
+from datetime import datetime, timezone
 import json
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 import functions_framework
@@ -87,7 +87,11 @@ def validate_and_enrich_claim(cloud_event: Any) -> None:
         logger.error("schema_validation_error", extra={"context": {"message_id": message_id, "details": exc.errors()}})
         return
     except Exception as exc:  # pylint: disable=broad-exception-caught
-        payload = {"error_type": "unexpected_decode_error", "details": str(exc), "raw_event": getattr(cloud_event, "data", {})}
+        payload = {
+            "error_type": "unexpected_decode_error",
+            "details": str(exc),
+            "raw_event": getattr(cloud_event, "data", {}),
+        }
         message_id = _publish(SETTINGS.invalid_claims_topic, payload)
         logger.exception("unexpected_decode_error", extra={"context": {"message_id": message_id}})
         return
@@ -119,7 +123,13 @@ def validate_and_enrich_claim(cloud_event: Any) -> None:
             message_id = _publish(SETTINGS.invalid_claims_topic, row)
             logger.info(
                 "claim_invalid",
-                extra={"context": {"claim_id": claim.claim_id, "status": result.status.value, "message_id": message_id}},
+                extra={
+                    "context": {
+                        "claim_id": claim.claim_id,
+                        "status": result.status.value,
+                        "message_id": message_id,
+                    }
+                },
             )
             return
 
@@ -190,6 +200,10 @@ def validate_and_enrich_claim(cloud_event: Any) -> None:
             _publish(SETTINGS.alerts_topic, alert)
 
     except Exception as exc:  # pylint: disable=broad-exception-caught
-        payload = {"error_type": "unexpected_processing_error", "details": str(exc), "claim_id": getattr(claim, "claim_id", None)}
+        payload = {
+            "error_type": "unexpected_processing_error",
+            "details": str(exc),
+            "claim_id": getattr(claim, "claim_id", None),
+        }
         message_id = _publish(SETTINGS.invalid_claims_topic, payload)
         logger.exception("unexpected_processing_error", extra={"context": {"message_id": message_id}})

@@ -1,9 +1,8 @@
-from datetime import date
-import pytest
 from pydantic import ValidationError
+import pytest
 
 from src.claim_validator import ClaimsValidator
-from src.schemas import ClaimRecord, MedicalProcedure, DiagnosisCode
+from src.schemas import ClaimRecord, DiagnosisCode, MedicalProcedure
 from tests.test_schema_validation import valid_claim_payload
 
 

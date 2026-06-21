@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
+from datetime import datetime, timezone
 import hashlib
 import logging
-from datetime import datetime, timezone
-from typing import Any, Iterable, Mapping, Optional
+from typing import Any
 
 try:
     from google.api_core.exceptions import GoogleAPIError
@@ -26,7 +27,7 @@ from src.config import Settings
 
 logger = logging.getLogger(__name__)
 
-_sql_engine: Optional["Engine"] = None
+_sql_engine: Engine | None = None
 
 
 def lookup_member_risk_score(
@@ -63,7 +64,7 @@ def lookup_member_risk_score(
     return float(rows[0].risk_score) if rows else 1.0
 
 
-def get_sql_engine(settings: Settings) -> "Engine":
+def get_sql_engine(settings: Settings) -> Engine:
     """
     Create or return a cached SQLAlchemy engine for provider reference data.
 

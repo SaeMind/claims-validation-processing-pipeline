@@ -90,7 +90,13 @@ def test_build_idempotency_key_is_deterministic() -> None:
 
 
 def test_build_idempotency_key_changes_with_input() -> None:
-    base = {"claim_id": "CLM-1", "member_id": "MEM-1", "provider_id": "PRV-1", "service_date": "2026-01-01", "amount": 100.0}
+    base = {
+        "claim_id": "CLM-1",
+        "member_id": "MEM-1",
+        "provider_id": "PRV-1",
+        "service_date": "2026-01-01",
+        "amount": 100.0,
+    }
     changed = dict(base, amount=200.0)
     assert build_idempotency_key(base) != build_idempotency_key(changed)
 

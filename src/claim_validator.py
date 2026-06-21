@@ -2,9 +2,10 @@
 
 from datetime import date
 import logging
-from src.config import VALIDATION_RULES, SETTINGS, Settings
-from src.schemas import ClaimRecord, ClaimStatus, ErrorSeverity, ValidationIssue, ValidationResult
+
+from src.config import SETTINGS, VALIDATION_RULES, Settings
 from src.metrics import record_validation, timer, traced_span
+from src.schemas import ClaimRecord, ClaimStatus, ErrorSeverity, ValidationIssue, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,12 @@ class ClaimsValidator:
         if not claim.diagnoses:
             self._add_issue("STRUCTURE_002", ErrorSeverity.ERROR, "Claim has no diagnoses", "diagnoses")
         if claim.date_of_service > date.today():
-            self._add_issue("STRUCTURE_003", ErrorSeverity.ERROR, f"Service date in future: {claim.date_of_service}", "date_of_service")
+            self._add_issue(
+                "STRUCTURE_003",
+                ErrorSeverity.ERROR,
+                f"Service date in future: {claim.date_of_service}",
+                "date_of_service",
+            )
         if claim.diagnoses and not any(dx.primary for dx in claim.diagnoses):
             self._add_issue("STRUCTURE_004", ErrorSeverity.WARNING, "No primary diagnosis indicated", "diagnoses")
 
@@ -90,7 +96,12 @@ class ClaimsValidator:
         """Validate place of service against configured allowed values."""
         allowed = self.rules.get("allowed_places_of_service", set())
         if claim.place_of_service not in allowed:
-            self._add_issue("POS_001", ErrorSeverity.WARNING, f"Place of service {claim.place_of_service} is uncommon or not configured", "place_of_service")
+            self._add_issue(
+                "POS_001",
+                ErrorSeverity.WARNING,
+                f"Place of service {claim.place_of_service} is uncommon or not configured",
+                "place_of_service",
+            )
 
     def _validate_medical_necessity(self, claim: ClaimRecord) -> None:
         """Validate diagnosis-procedure combinations against configured medical necessity rules."""
@@ -113,7 +124,12 @@ class ClaimsValidator:
         """Validate duplicate procedures and claim total reconciliation."""
         line_keys = [(p.procedure_code, p.modifier) for p in claim.procedures]
         if len(line_keys) != len(set(line_keys)):
-            self._add_issue("CODING_001", ErrorSeverity.WARNING, "Claim has duplicate procedure/modifier combinations", "procedures")
+            self._add_issue(
+                "CODING_001",
+                ErrorSeverity.WARNING,
+                "Claim has duplicate procedure/modifier combinations",
+                "procedures",
+            )
         procedure_total = round(sum(procedure.amount for procedure in claim.procedures), 2)
         claim_total = round(claim.total_amount, 2)
         if abs(procedure_total - claim_total) > 0.01:
@@ -127,13 +143,28 @@ class ClaimsValidator:
     def _validate_amount_thresholds(self, claim: ClaimRecord) -> None:
         """Validate claim and procedure amount thresholds."""
         if claim.total_amount > self.settings.max_claim_amount:
-            self._add_issue("AMOUNT_001", ErrorSeverity.ERROR, f"Claim amount {claim.total_amount} exceeds threshold {self.settings.max_claim_amount}", "total_amount")
+            self._add_issue(
+                "AMOUNT_001",
+                ErrorSeverity.ERROR,
+                f"Claim amount {claim.total_amount} exceeds threshold {self.settings.max_claim_amount}",
+                "total_amount",
+            )
         for procedure in claim.procedures:
             if procedure.amount > self.settings.max_procedure_amount:
-                self._add_issue("AMOUNT_002", ErrorSeverity.WARNING, f"Procedure {procedure.procedure_code} amount {procedure.amount} exceeds procedure threshold", "procedures")
+                self._add_issue(
+                    "AMOUNT_002",
+                    ErrorSeverity.WARNING,
+                    f"Procedure {procedure.procedure_code} amount {procedure.amount} exceeds procedure threshold",
+                    "procedures",
+                )
             amount_per_unit = procedure.amount / procedure.units
             if amount_per_unit > 5000:
-                self._add_issue("AMOUNT_003", ErrorSeverity.WARNING, f"High per-unit amount: ${amount_per_unit:.2f} for procedure {procedure.procedure_code}", "procedures")
+                self._add_issue(
+                    "AMOUNT_003",
+                    ErrorSeverity.WARNING,
+                    f"High per-unit amount: ${amount_per_unit:.2f} for procedure {procedure.procedure_code}",
+                    "procedures",
+                )
 
     def _validate_frequency_limits(self, claim: ClaimRecord) -> None:
         """Flag procedures requiring historical utilization checks."""
@@ -141,7 +172,12 @@ class ClaimsValidator:
         for procedure in claim.procedures:
             if procedure.procedure_code in frequency_limits:
                 description = frequency_limits[procedure.procedure_code].get("description", "procedure")
-                self._add_issue("FREQ_001", ErrorSeverity.WARNING, f"Procedure {procedure.procedure_code} ({description}) requires member history frequency check", "procedures")
+                self._add_issue(
+                    "FREQ_001",
+                    ErrorSeverity.WARNING,
+                    f"Procedure {procedure.procedure_code} ({description}) requires member history frequency check",
+                    "procedures",
+                )
 
     def _calculate_confidence(self, error_count: int, warning_count: int) -> float:
         """Calculate validation confidence score based on issues."""

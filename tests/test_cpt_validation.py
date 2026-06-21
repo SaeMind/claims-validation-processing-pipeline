@@ -1,4 +1,4 @@
-from src.cpt_validator import is_valid_procedure_code, is_valid_modifier
+from src.cpt_validator import is_valid_modifier, is_valid_procedure_code
 
 
 def test_cpt_and_hcpcs_codes() -> None:

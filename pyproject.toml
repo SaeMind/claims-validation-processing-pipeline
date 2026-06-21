@@ -5,6 +5,9 @@ src = ["src", "cloud_functions", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests", "cloud_functions"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true

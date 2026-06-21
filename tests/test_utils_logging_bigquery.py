@@ -1,8 +1,8 @@
 import base64
 import json
 import logging
-from unittest.mock import Mock
 from pathlib import Path
+from unittest.mock import Mock
 
 from src.bigquery_writer import ClaimsBigQueryWriter, build_validated_claim_row
 from src.logging_config import configure_logging

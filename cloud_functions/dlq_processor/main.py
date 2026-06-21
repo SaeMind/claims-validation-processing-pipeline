@@ -3,8 +3,10 @@
 import json
 import logging
 from typing import Any
+
 import functions_framework
 from google.cloud import pubsub_v1
+
 from src.config import SETTINGS
 from src.error_handlers import DLQAction, DLQProcessor
 from src.logging_config import configure_logging
@@ -51,4 +53,14 @@ def process_invalid_claim(cloud_event: Any) -> None:
     payload["dlq_decision"] = {"action": decision.action.value, "reason": decision.reason}
     topic = _topic_for_action(decision.action)
     message_id = _publish(topic, payload)
-    logger.info("dlq_routed", extra={"context": {"claim_id": payload.get("claim_id"), "action": decision.action.value, "topic": topic, "message_id": message_id}})
+    logger.info(
+        "dlq_routed",
+        extra={
+            "context": {
+                "claim_id": payload.get("claim_id"),
+                "action": decision.action.value,
+                "topic": topic,
+                "message_id": message_id,
+            }
+        },
+    )

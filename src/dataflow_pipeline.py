@@ -9,9 +9,10 @@ per member in 30-second fixed windows and flags simple volume/spend anomalies.
 from __future__ import annotations
 
 import argparse
-import json
+from collections.abc import Iterable
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, Tuple
+import json
+from typing import Any
 
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions, SetupOptions
@@ -23,7 +24,7 @@ from src.config import SETTINGS
 class ParseClaimMessage(beam.DoFn):
     """Parse a Pub/Sub message into a claim dictionary."""
 
-    def process(self, message: bytes) -> Iterable[Dict[str, Any]]:
+    def process(self, message: bytes) -> Iterable[dict[str, Any]]:
         """Yield parsed claim dictionaries from raw Pub/Sub messages."""
         try:
             claim = json.loads(message.decode("utf-8"))
@@ -36,7 +37,7 @@ class ParseClaimMessage(beam.DoFn):
 class ToMemberKey(beam.DoFn):
     """Convert claim dictionaries to keyed member aggregation records."""
 
-    def process(self, claim: Dict[str, Any]) -> Iterable[Tuple[str, Dict[str, Any]]]:
+    def process(self, claim: dict[str, Any]) -> Iterable[tuple[str, dict[str, Any]]]:
         """Yield member-keyed aggregation values."""
         member_id = str(claim.get("member_id", "UNKNOWN"))
         amount = float(claim.get("amount", 0.0))
@@ -54,9 +55,9 @@ class BuildMemberAggregate(beam.DoFn):
 
     def process(
         self,
-        element: Tuple[str, Iterable[Dict[str, Any]]],
+        element: tuple[str, Iterable[dict[str, Any]]],
         window_param: beam.DoFn.WindowParam = beam.DoFn.WindowParam,
-    ) -> Iterable[Dict[str, Any]]:
+    ) -> Iterable[dict[str, Any]]:
         """Yield one aggregate row per member per Beam window."""
         member_id, claims_iterable = element
         claims = list(claims_iterable)
@@ -82,7 +83,7 @@ class BuildMemberAggregate(beam.DoFn):
 class AlertAnomalies(beam.DoFn):
     """Create Pub/Sub alert payloads for anomalous member aggregates."""
 
-    def process(self, aggregate: Dict[str, Any]) -> Iterable[bytes]:
+    def process(self, aggregate: dict[str, Any]) -> Iterable[bytes]:
         """Yield encoded alert payloads when an aggregate has anomaly flags."""
         if not aggregate.get("anomaly_flags"):
             return
@@ -137,7 +138,7 @@ def build_pipeline(pipeline: beam.Pipeline, args: argparse.Namespace) -> None:
     )
 
 
-def get_aggregate_schema() -> Dict[str, Any]:
+def get_aggregate_schema() -> dict[str, Any]:
     """Return BigQuery schema for member claim aggregation output."""
     return {
         "fields": [
