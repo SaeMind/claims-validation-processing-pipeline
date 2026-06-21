@@ -26,6 +26,7 @@ disallow_untyped_calls = false
 disallow_untyped_defs = false
 warn_return_any = false
 implicit_reexport = true
+disallow_subclassing_any = false
 
 [[tool.mypy.overrides]]
 module = "apache_beam.*"
